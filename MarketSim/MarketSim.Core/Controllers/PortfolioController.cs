@@ -21,26 +21,40 @@ public class PortfolioController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreatePortfolio()
     {
-        var portfolio = await _dbContext.Portfolios.AddAsync(new Portfolio());
-        await _dbContext.SaveChangesAsync();
-        return Ok(portfolio.Entity);
+        try
+        {
+            var portfolio = await _dbContext.Portfolios.AddAsync(new Portfolio());
+            await _dbContext.SaveChangesAsync();
+            return Ok(portfolio.Entity);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetPorfolio(int id)
     {
-        var portfolio = (await _dbContext.Portfolios
-            .Include(p => p.CashTransactions)
-            .Include(p => p.StockTransactions)
-            .Include(p => p.PortfolioPositions)
-                .ThenInclude(p => p.Stock)
-            .FirstOrDefaultAsync(p => p.Id == id)) ?? throw new Exception("No portfolio found");
-
-        foreach (var position in portfolio.PortfolioPositions)
+        try
         {
-            Console.WriteLine(position.Stock.Name);
-        }
+            var portfolio = (await _dbContext.Portfolios
+                .Include(p => p.CashTransactions)
+                .Include(p => p.StockTransactions)
+                .Include(p => p.PortfolioPositions)
+                    .ThenInclude(p => p.Stock)
+                .FirstOrDefaultAsync(p => p.Id == id)) ?? throw new Exception("No portfolio found");
 
-        return Ok(portfolio);
+            foreach (var position in portfolio.PortfolioPositions)
+            {
+                Console.WriteLine(position.Stock.Name);
+            }
+
+            return Ok(portfolio);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 }

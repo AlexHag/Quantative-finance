@@ -26,14 +26,29 @@ public class CashTransactionController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> CreateTransaction(CreateCashTransactionRequest request)
     {
-        var transaction = await _transactionService.CreateCashTransaction(request);
-        return Ok(transaction);
+        try
+        {
+            var transaction = await _transactionService.CreateCashTransaction(request);
+            return Ok(transaction);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetTransaction(int id)
     {
-        var transaction = await _dbContext.CashTransactions.FindAsync(id);
-        return Ok(transaction);
+        try
+        {
+            var transaction = await _dbContext.CashTransactions.FindAsync(id);
+            return Ok(transaction);
+
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
     }
 }
