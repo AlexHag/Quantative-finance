@@ -1,23 +1,65 @@
 using Microsoft.AspNetCore.Mvc;
 using MarketSim.Core.Entities;
 using MarketSim.Core.Database;
+using MarketSim.Core.Services;
 
 namespace Alex.Market.Service.Controllers;
 
 [ApiController]
 [Route("[controller]")]
-public class SeedController : ControllerBase
+public class SystemController : ControllerBase
 {
-    private readonly ILogger<SeedController> _logger;
+    private readonly ILogger<SystemController> _logger;
     private readonly AppDbContext _dbContext;
+    private readonly ISystemService _service;
 
-    public SeedController(ILogger<SeedController> logger, AppDbContext dbContext)
+    public SystemController(
+        ILogger<SystemController> logger,
+        AppDbContext dbContext,
+        ISystemService service)
     {
         _logger = logger;
         _dbContext = dbContext;
+        _service = service;
     }
 
-    [HttpGet("Stock")]
+    [HttpGet("AddDay")]
+    public async Task<IActionResult> AddDay()
+    {
+        try
+        {
+            await _service.AddSystemDay();
+            return Ok("");
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+}
+
+    [HttpPost("SetDay")]
+    public async Task<IActionResult> SystemSettings([FromBody] DateTime today)
+    {
+        if (today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday)
+            return BadRequest($"Today ({today}) cannot be a weekend ({today.DayOfWeek}), markets are closed on weekends");
+        
+        if (!_dbContext.SystemSettings.Any())
+        {
+            await _dbContext.SystemSettings.AddAsync(new SystemSettings
+            {
+                CurrentDay = today
+            });
+        }
+        else
+        {
+            var system = _dbContext.SystemSettings.FirstOrDefault()!;
+            system.CurrentDay = today;
+        }
+        await _dbContext.SaveChangesAsync();
+        return Ok(today.DayOfWeek.ToString());
+    }
+
+    [HttpGet("SeedStocks")]
     public async Task<IActionResult> Stocks()
     {
         if (_dbContext.Stocks.Any())
@@ -40,28 +82,6 @@ public class SeedController : ControllerBase
         await _dbContext.SaveChangesAsync();
 
         return Ok();
-    }
-
-    [HttpPost("SystemSettings")]
-    public async Task<IActionResult> SystemSettings([FromBody] DateTime today)
-    {
-        if (today.DayOfWeek == DayOfWeek.Saturday || today.DayOfWeek == DayOfWeek.Sunday)
-            return BadRequest($"Today ({today}) cannot be a weekend ({today.DayOfWeek}), markets are closed on weekends");
-        
-        if (!_dbContext.SystemSettings.Any())
-        {
-            await _dbContext.SystemSettings.AddAsync(new SystemSettings
-            {
-                CurrentDay = today
-            });
-        }
-        else
-        {
-            var system = _dbContext.SystemSettings.FirstOrDefault()!;
-            system.CurrentDay = today;
-        }
-        await _dbContext.SaveChangesAsync();
-        return Ok(today.DayOfWeek.ToString());
     }
 
     private Stock CreateStock(string ticker, string name)

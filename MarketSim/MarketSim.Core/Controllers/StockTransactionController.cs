@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using MarketSim.Core.Database;
 using MarketSim.Core.Services;
 using MarketSim.Core.Requests;
+using Microsoft.EntityFrameworkCore;
 
 namespace MarketSim.Core.Controllers;
 
@@ -45,6 +46,26 @@ public class StockTransactionController : ControllerBase
         {
             var transaction = await _dbContext.CashTransactions.FindAsync(id);
             return Ok(transaction);
+        }
+        catch (Exception e)
+        {
+            return BadRequest(e.Message);
+        }
+    }
+
+    [HttpGet("/stock/{portfolioId}/{ticker}")]
+    public async Task<IActionResult> GetStockTransactions(string portfolioId, string ticker)
+    {
+        try
+        {
+            var portfolio = await _dbContext.Portfolios
+                .Include(p => p.StockTransactions)
+                .ThenInclude(p => p.Stock)
+                .FirstOrDefaultAsync();
+            if (portfolio is null) return NotFound("Portfolio not found");
+
+            var transactions = portfolio.StockTransactions.Where(p => p.Stock.Ticker == ticker).ToList();
+            return Ok(transactions);
         }
         catch (Exception e)
         {

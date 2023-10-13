@@ -10,6 +10,7 @@ builder.Services.AddDbContext<AppDbContext>(options =>
 
 builder.Services.AddScoped<ICashTransactionService, CashTransactionService>();
 builder.Services.AddScoped<IStockTransactionService, StockTransactionService>();
+builder.Services.AddScoped<ISystemService, SystemService>();
 
 builder.Services.AddControllers().AddJsonOptions(x =>
     {

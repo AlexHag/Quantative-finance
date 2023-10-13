@@ -78,7 +78,7 @@ public class StockTransactionService : IStockTransactionService
             {
                 Stock = stock,
                 Quantity = transaction.Quantity,
-                CashIn = transaction.OrderPrice
+                PositionValue = transaction.OrderPrice
             };
 
             portfolio.PortfolioPositions.Add(newPosition);
@@ -86,7 +86,7 @@ public class StockTransactionService : IStockTransactionService
         else
         {
             portfolioPosition.Quantity += transaction.Quantity;
-            portfolioPosition.CashIn += transaction.OrderPrice;
+            portfolioPosition.PositionValue += transaction.OrderPrice;
         }
 
         portfolio.CashBalance -= transaction.OrderPrice;
@@ -136,7 +136,7 @@ public class StockTransactionService : IStockTransactionService
         else
         {
            position.Quantity -= request.Quantity;
-           position.CashOut += transaction.OrderPrice;
+           position.PositionValue -= transaction.OrderPrice;
         }
 
         portfolio.CashBalance += transaction.OrderPrice;

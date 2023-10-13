@@ -34,16 +34,28 @@ public class PortfolioController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public async Task<IActionResult> GetPorfolio(int id)
+    public async Task<IActionResult> GetPorfolio(int id, bool includeTransactions)
     {
         try
         {
+
             var portfolio = (await _dbContext.Portfolios
-                .Include(p => p.CashTransactions)
-                .Include(p => p.StockTransactions)
+                // .Include(p => p.CashTransactions)
+                // .Include(p => p.StockTransactions)
+                .Include(p => p.PortfolioReturns)
                 .Include(p => p.PortfolioPositions)
                     .ThenInclude(p => p.Stock)
                 .FirstOrDefaultAsync(p => p.Id == id)) ?? throw new Exception("No portfolio found");
+
+            if (includeTransactions)
+            {
+                _dbContext.Entry(portfolio)
+                .Collection(p => p.CashTransactions)
+                .Load();
+                _dbContext.Entry(portfolio)
+                .Collection(p => p.StockTransactions)
+                .Load();
+            }
 
             foreach (var position in portfolio.PortfolioPositions)
             {
