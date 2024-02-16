@@ -1,18 +1,42 @@
 [
     {
 		"instrumentId": "597596",
-		"name": "Sinch"
+		"name": "Sinch",
+		"vol": 0.6916
 	},
     {
 		"instrumentId": "9270",
-		"name": "OMX"
+		"name": "OMX",
+		"vol": 0.1212
 	},
     {
 		"instrumentId": "5407",
-		"name": "Investor"
+		"name": "Investor",
+		"vol": 0.1551
 	},
     {
 		"instrumentId": "514521",
-		"name": "SBB"
+		"name": "SBB",
+		"vol": 0.8896
+	},
+	{
+		"instrumentId": "5589",
+		"name": "Astra Zeneca",
+		"vol": 0.2284
+	},
+	{
+		"instrumentId": "547167",
+		"name": "Evolution",
+		"vol": 0.259
+	},
+	{
+		"instrumentId": "1004576",
+		"name": "EQT",
+		"vol": 0.2599
+	},
+	{
+		"instrumentId": "5446",
+		"name": "Hexagon",
+		"vol": 0.1881
 	}
 ]
